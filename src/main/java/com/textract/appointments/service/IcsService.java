@@ -1,6 +1,6 @@
 package com.textract.appointments.service;
 
-import com.textract.appointments.config.TextractConfig;
+import com.textract.appointments.config.TextractProperties;
 import com.textract.appointments.model.Appointment;
 import jakarta.annotation.PostConstruct;
 import net.fortuna.ical4j.model.Calendar;
@@ -20,17 +20,17 @@ import java.util.List;
 @Service
 public class IcsService {
 
-    private final TextractConfig textractConfig;
+    private final TextractProperties textractProperties;
 
     private VTimeZone timeZone;
 
-    public IcsService(@Autowired final TextractConfig textractConfig) {
-        this.textractConfig = textractConfig;
+    public IcsService(@Autowired final TextractProperties textractProperties) {
+        this.textractProperties = textractProperties;
     }
 
     @PostConstruct
     private void postConstruct() {
-        this.timeZone = TimeZoneRegistryFactory.getInstance().createRegistry().getTimeZone(textractConfig.getTimeZoneString()).getVTimeZone();
+        this.timeZone = TimeZoneRegistryFactory.getInstance().createRegistry().getTimeZone(textractProperties.getAppointmentTimeZone()).getVTimeZone();
     }
 
     public Resource convertToIcsFile(final List<Appointment> appointmentList) {
@@ -38,7 +38,7 @@ public class IcsService {
 
         for (final Appointment appointment : appointmentList) {
             final DateTime dateTimeBegin = new DateTime(appointment.getDate());
-            final DateTime dateTimeEnd = new DateTime(Date.from(dateTimeBegin.toInstant().plus(Duration.ofHours(textractConfig.getAppointmentDefaultDuration()))));
+            final DateTime dateTimeEnd = new DateTime(Date.from(dateTimeBegin.toInstant().plus(Duration.ofHours(textractProperties.getAppointmentDefaultDuration()))));
 
             final VEvent meeting = new VEvent(dateTimeBegin, dateTimeEnd, appointment.getDescription())
                     .withProperty(timeZone.getTimeZoneId())

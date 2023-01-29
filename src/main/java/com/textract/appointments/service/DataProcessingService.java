@@ -1,6 +1,6 @@
 package com.textract.appointments.service;
 
-import com.textract.appointments.config.TextractConfig;
+import com.textract.appointments.config.TextractProperties;
 import com.textract.appointments.model.Appointment;
 import com.textract.appointments.model.BlockGroup;
 import com.textract.appointments.util.AppointmentUtil;
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 @Service
 public class DataProcessingService {
 
-    private TextractConfig textractConfig;
+    private TextractProperties textractProperties;
 
-    public DataProcessingService(@Autowired final TextractConfig textractConfig) {
-        this.textractConfig = textractConfig;
+    public DataProcessingService(@Autowired final TextractProperties textractProperties) {
+        this.textractProperties = textractProperties;
     }
 
     public List<Appointment> processDetectDocumentResponse(final DetectDocumentTextResponse detectDocumentTextResponse) {
@@ -29,7 +29,7 @@ public class DataProcessingService {
                 .filter(block -> block.blockType().equals(BlockType.LINE))
                 .collect(Collectors.toList());
 
-        final List<BlockGroup> blockGroups = BlockGrouper.groupBlocks(filteredBlocks, textractConfig.getLineProximity());
+        final List<BlockGroup> blockGroups = BlockGrouper.groupBlocks(filteredBlocks, textractProperties.getAppointmentLineProximity());
 
         final List<String> appointmentStringList = blockGroups.stream()
                 .map(blockGroup -> blockGroup.getBlocks().stream().map(Block::text).collect(Collectors.joining(" ")))
